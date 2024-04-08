@@ -15,16 +15,24 @@ import java.util.function.Function;
 
 @Service
 public class JWTServiceImpl implements JWTService {
+    private String secret = "codigoJWT";
 
     @Override
     public String generateToken(UserDetails userDetails) {
-        return Jwts.builder().setSubject(userDetails.getUsername())
+//        return Jwts.builder().setSubject(userDetails.getUsername())
+//                .setIssuedAt(new Date(System.currentTimeMillis()))
+//                .setExpiration(new Date(System.currentTimeMillis() + 30 * 60 * 1000)) // 30 minutos en milisegundos
+//
+//                //.setExpiration(new Date(System.currentTimeMillis() + 120000))
+//                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+//                .compact();
+        Claims claims = Jwts.claims().setSubject(userDetails.getUsername());
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 30 * 60 * 1000)) // 30 minutos en milisegundos
-
-                //.setExpiration(new Date(System.currentTimeMillis() + 120000))
-                .signWith(getSignKey(), SignatureAlgorithm.HS256)
-                .compact();
+                .setExpiration(new Date(System.currentTimeMillis() + 7200000)) // 2 horas = 7200000
+                .signWith(SignatureAlgorithm.HS256,secret).compact();
     }
 
     @Override
@@ -44,7 +52,7 @@ public class JWTServiceImpl implements JWTService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
 
     private Key getSignKey() {
