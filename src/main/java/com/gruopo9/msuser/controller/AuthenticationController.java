@@ -4,6 +4,7 @@ import com.gruopo9.msuser.entity.Usuario;
 import com.gruopo9.msuser.request.SignInRequest;
 import com.gruopo9.msuser.request.SignUpRequest;
 import com.gruopo9.msuser.response.AuthenticationResponse;
+import com.gruopo9.msuser.response.ResponseBase;
 import com.gruopo9.msuser.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,7 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
 @GetMapping("/usuarioautenticado")
-public ResponseEntity<Usuario> getUsuarioAutenticado() {
+public ResponseEntity<ResponseBase> getUsuarioAutenticado() {
     Usuario usuario = authenticationService.getUsuarioAutenticado();
 
     // Verificar si el usuario tiene el rol USER o ADMIN
@@ -26,7 +27,7 @@ public ResponseEntity<Usuario> getUsuarioAutenticado() {
 
     // Permitir acceso solo a usuarios con rol USER o ADMIN
     if (hasUserRole || hasAdminRole) {
-        return ResponseEntity.ok(usuario);
+        return ResponseEntity.ok(ResponseBase.exitoso("Authtenticacion con exito", usuario));
     } else {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
